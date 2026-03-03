@@ -4,6 +4,7 @@ from transformers import DistilBertForSequenceClassification, DistilBertTokenize
 import argparse
 import sys
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,8 +53,11 @@ def predict(model_path, inputs):
              print("  Warning: single scalar probability instead of array")
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_model = os.path.join(script_dir, 'saved_model', 'final_model')
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='saved_model/final_model', help='Path to trained model')
+    parser.add_argument('--model', default=default_model, help='Path to trained model')
     parser.add_argument('--text', nargs='+', default=[
         "GET /index.html ",
         "GET /login.php username=admin' OR '1'='1",
