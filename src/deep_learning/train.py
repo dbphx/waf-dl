@@ -23,13 +23,17 @@ def compute_metrics(pred):
         'recall': recall
     }
 
-def train(normal_path, attack_path, output_dir, max_samples=5000, epochs=3, batch_size=16):
+def train(output_dir, max_samples=5000, epochs=3, batch_size=16):
     logger.info("Loading tokenizer...")
     tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
     
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dataset_path = os.path.join(script_dir, '../../data/augmented_dataset.csv')
+    
     logger.info("Preparing dataset...")
     datasets = prepare_hf_dataset(
-        path='../../data/augmented_dataset.csv', 
+        path=dataset_path, 
         tokenizer=tokenizer, 
         test_size=0.2, 
         max_length=128, 
@@ -90,19 +94,19 @@ def train(normal_path, attack_path, output_dir, max_samples=5000, epochs=3, batc
     logger.info(f"Evaluation results: {eval_results}")
     
     # Save the final model model
-    final_model_path = os.path.join(output_dir, "final_model")
-    model.save_pretrained(final_model_path)
-    tokenizer.save_pretrained(final_model_path)
-    logger.info(f"Model saved to {final_model_path}")
+    model.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    logger.info(f"Model saved to {output_dir}")
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_output = os.path.join(script_dir, '../../models/deep_learning')
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--normal', default='../../data/normal.csv', help='Path to normal.csv')
-    parser.add_argument('--attack', default='../../data/attack.csv', help='Path to attack.csv')
-    parser.add_argument('--output', default='saved_model', help='Output directory for the model')
+    parser.add_argument('--output', default=default_output, help='Output directory for the model')
     parser.add_argument('--samples', type=int, default=5000, help='Max samples per class')
     parser.add_argument('--epochs', type=int, default=3, help='Training epochs')
     parser.add_argument('--batch-size', type=int, default=16, help='Batch size')
     args = parser.parse_args()
     
-    train(args.normal, args.attack, args.output, args.samples, args.epochs, args.batch_size)
+    train(args.output, args.samples, args.epochs, args.batch_size)

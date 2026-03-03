@@ -10,6 +10,7 @@ __pycache__/
 
 # Models and checkpoints
 saved_model/
+checkpoint*/
 *.safetensors
 *.onnx
 *.onnx.data

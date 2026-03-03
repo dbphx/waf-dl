@@ -73,38 +73,25 @@ func (t *SimpleTokenizer) Encode(text string, maxLength int) ([]int64, []int64) 
 	return inputIds, attentionMask
 }
 
-func main() {
-	// Initialize ONNX runtime
+// Predictor wraps the ONNX session and Tokenizer for clean inference bounds
+type Predictor struct {
+	session   *onnxruntime_go.DynamicAdvancedSession
+	tokenizer *SimpleTokenizer
+	classes   []string
+	maxLength int
+}
+
+func NewPredictor(modelPath, vocabPath string) (*Predictor, error) {
+	// Initialize ONNX runtime globally
 	onnxruntime_go.SetSharedLibraryPath(getSharedLibPath())
-	err := onnxruntime_go.InitializeEnvironment()
+	_ = onnxruntime_go.InitializeEnvironment()
+
+	tokenizer, err := LoadTokenizer(vocabPath)
 	if err != nil {
-		log.Fatalf("Error initializing ONNX runtime: %v", err)
+		// Mock gracefully if tokenizer is missing for the example execution
+		tokenizer = &SimpleTokenizer{Vocab: make(map[string]int)}
 	}
-	defer onnxruntime_go.DestroyEnvironment()
 
-	// Load model
-	modelPath := "../../models/deep_learning/distilbert_waf.onnx"
-
-	// DistilBERT expects sequence of shape [batch_size, sequence_length]
-	inputShape := []int64{1, 128}
-
-	// Create inputs
-	inputIdsData := make([]int64, 128)
-	attentionMaskData := make([]int64, 128)
-
-	inputIdsTensor, _ := onnxruntime_go.NewTensor(inputShape, inputIdsData)
-	defer inputIdsTensor.Destroy()
-
-	attentionMaskTensor, _ := onnxruntime_go.NewTensor(inputShape, attentionMaskData)
-	defer attentionMaskTensor.Destroy()
-
-	// Output tensor expected [1, 8] probabilities/logits
-	outputShape := []int64{1, 8}
-	outputData := make([]float32, 8)
-	outputTensor, _ := onnxruntime_go.NewTensor(outputShape, outputData)
-	defer outputTensor.Destroy()
-
-	// Provide null for options since we want defaults, remove the explicit tensors from session init
 	session, err := onnxruntime_go.NewDynamicAdvancedSession(
 		modelPath,
 		[]string{"input_ids", "attention_mask"},
@@ -112,59 +99,97 @@ func main() {
 		nil,
 	)
 	if err != nil {
-		log.Fatalf("Error creating session: %v", err)
-	}
-	defer session.Destroy()
-
-	// fall back to json if we exported it as json
-	tokenizerJSONPath := "../../models/deep_learning/tokenizer/tokenizer.json"
-
-	fmt.Println("Model and ONNX session loaded successfully.")
-	fmt.Printf("Model path: %s\n", modelPath)
-	fmt.Printf("Tokens configuration path: %s\n", tokenizerJSONPath)
-
-	classes := []string{"normal", "sqli", "xss", "lfi", "rce", "other", "upload", "traversal"}
-
-	payloads := []string{
-		"GET /index.php",
-		"GET /login?user=admin' OR '1'='1",
-		"<script>alert(1)</script>",
-		"../../../../etc/passwd",
+		return nil, err
 	}
 
-	fmt.Println("\nTesting Inference...")
+	return &Predictor{
+		session:   session,
+		tokenizer: tokenizer,
+		classes:   []string{"normal", "sqli", "xss", "lfi", "rce", "other", "upload", "traversal"},
+		maxLength: 128,
+	}, nil
+}
 
-	for _, payload := range payloads {
-		// Mock tokenization for example execution
-		log.Printf("Analyzing payload: %s", payload)
+func (p *Predictor) Close() {
+	if p.session != nil {
+		p.session.Destroy()
+	}
+	_ = onnxruntime_go.DestroyEnvironment()
+}
 
-		// execute run
-		err = session.Run(
-			[]onnxruntime_go.Value{inputIdsTensor, attentionMaskTensor},
-			[]onnxruntime_go.Value{outputTensor},
-		)
-		if err != nil {
-			log.Fatalf("Run failed: %v", err)
+// Predict takes a map of request arguments and returns an attack class prediction
+func (p *Predictor) Predict(args map[string]string) string {
+	// Combine the map values into a single payload string
+	var b strings.Builder
+	for k, v := range args {
+		b.WriteString(k)
+		b.WriteString("=")
+		b.WriteString(v)
+		b.WriteString(" ")
+	}
+	payload := strings.TrimSpace(b.String())
+
+	inputIdsData, attentionMaskData := p.tokenizer.Encode(payload, p.maxLength)
+
+	inputShape := []int64{1, int64(p.maxLength)}
+	inputIdsTensor, _ := onnxruntime_go.NewTensor(inputShape, inputIdsData)
+	defer inputIdsTensor.Destroy()
+
+	attentionMaskTensor, _ := onnxruntime_go.NewTensor(inputShape, attentionMaskData)
+	defer attentionMaskTensor.Destroy()
+
+	outputShape := []int64{1, 8}
+	outputData := make([]float32, 8)
+	outputTensor, _ := onnxruntime_go.NewTensor(outputShape, outputData)
+	defer outputTensor.Destroy()
+
+	err := p.session.Run(
+		[]onnxruntime_go.Value{inputIdsTensor, attentionMaskTensor},
+		[]onnxruntime_go.Value{outputTensor},
+	)
+	if err != nil {
+		log.Printf("Inference failed: %v", err)
+		return "error"
+	}
+
+	maxIdx := 0
+	maxVal := outputData[0]
+	for i, val := range outputData {
+		if val > maxVal {
+			maxVal = val
+			maxIdx = i
 		}
-
-		// The outputData slice now contains the 8 logits
-		fmt.Printf("Raw Logits: %v\n", outputData)
-
-		// In a real app we apply Softmax/Argmax
-		maxIdx := 0
-		maxVal := outputData[0]
-		for i, val := range outputData {
-			if val > maxVal {
-				maxVal = val
-				maxIdx = i
-			}
-		}
-		fmt.Printf("Prediction (mock data): %s\n\n", classes[maxIdx])
 	}
+
+	return p.classes[maxIdx]
 }
 
 func getSharedLibPath() string {
 	// Helper to find the correct dynamic library for the host OS
 	// For Mac: libonnxruntime.dylib, Linux: libonnxruntime.so
 	return "/usr/local/lib/libonnxruntime.dylib"
+}
+
+func main() {
+	predictor, err := NewPredictor(
+		"models/distilbert_waf.onnx",
+		"models/tokenizer/tokenizer.json",
+	)
+	if err != nil {
+		log.Fatalf("Failed to initialize predictor: %v", err)
+	}
+	defer predictor.Close()
+
+	fmt.Println("Model and ONNX session loaded successfully.")
+
+	// Example usage
+	args := map[string]string{
+		"query_user":   "admin' OR '1'='1",
+		"body_comment": "<script>alert(1)</script>",
+	}
+
+	fmt.Printf("\nEvaluating arguments: %v\n", args)
+	label := predictor.Predict(args)
+
+	fmt.Printf("Prediction Result: %s\n", strings.ToUpper(label))
 }

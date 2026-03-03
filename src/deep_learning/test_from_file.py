@@ -81,7 +81,7 @@ def predict_from_file(model_path, file_path):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_model = os.path.join(script_dir, 'saved_model', 'final_model')
+    default_model = os.path.join(script_dir, '../../models/deep_learning')
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default=default_model, help='Path to trained model')
