@@ -1,0 +1,158 @@
+Categories of Normal Traffic (50 Categories)
+-------------------------------------------
+1. Homepage Access: GET /
+2. Static Asset (CSS): GET /static/css/style.css
+3. Static Asset (JS): GET /assets/js/bundle.min.js
+4. Static Asset (Image): GET /images/logo.png
+5. Static Asset (Favicon): GET /favicon.ico
+6. Robots.txt: GET /robots.txt
+7. Sitemap: GET /sitemap.xml
+8. Health Check: GET /health
+9. API Ping: GET /api/v1/ping
+10. Login Page Load: GET /login
+11. Search Query (Simple): GET /search?q=security
+12. Search Query (Spaces): GET /search?q=machine+learning
+13. Search Query (Symbols): GET /search?q=C%23
+14. Search Query (Quote): GET /search?q=O'Reilly
+15. Search Query (Math): GET /search?q=1+1=2
+16. API GET (List Products): GET /api/v1/products
+17. API GET (Single Product): GET /api/v1/products/101
+18. API POST (Login): POST /api/v1/login (username/password)
+19. API POST (Submit Order): POST /api/v1/orders (JSON payload)
+20. API PUT (Update Profile): PUT /api/v1/profile (JSON payload)
+21. API PATCH (Update Setting): PATCH /api/v1/settings/theme
+22. API DELETE (Remove Item): DELETE /api/v1/cart/items/5
+23. Form Submit (Contact Us): POST /contact (name, email, message)
+24. Form Submit (Signup): POST /register (detailed user info)
+25. OAuth Auth Flow: GET /auth/google/callback
+26. Analytics Event: POST /collect?v=1&tid=UA-XXXXX
+27. Error Logging: POST /api/v1/logs/frontend (traceback)
+28. User Profile View: GET /user/profile
+29. Dashboard Page: GET /dashboard?view=summary&time=30d
+30. Settings Navigation: GET /settings/security
+31. Password Reset Request: POST /auth/password-reset-request
+32. Newsletter Subscription: POST /newsletter/subscribe
+33. Cart Add Item: POST /cart/add?product_id=99
+34. Checkout Page: GET /checkout/step1
+35. Order Success: GET /checkout/success?order_id=ord_123
+36. Webhook (GitHub): POST /webhooks/github (Push Event)
+37. Webhook (Stripe): POST /webhooks/stripe (Payment Success)
+38. HEAD Request (CDN): HEAD /assets/large-video.mp4
+39. OPTIONS Preflight (CORS): OPTIONS /api/v1/data
+40. Font Loading: GET /fonts/inter-bold.woff2
+41. Manifest Loading: GET /manifest.json
+42. i18n Localization: GET /locales/vi-VN.json
+43. GraphQL Query (User): POST /graphql (query { me { name } })
+44. Documentation Access: GET /docs/api/introduction
+45. Blog Article: GET /blog/future-of-ai-2026
+46. Comment Submission: POST /blog/comment (valid user text)
+47. Video Fragment: GET /stream/hls/chunk_001.ts
+48. Map Tile Request: GET /maps/v2/tile/10/512/324.png
+49. Admin Statistics: GET /admin/dashboard/users/active
+50. File Download (PDF): GET /downloads/guide-v2.pdf
+51. User Login (Multi-factor Auth Step): POST /auth/mfa/verify {"code": "123456"}
+52. File Upload (Profile Picture JPEG): POST /api/v1/user/avatar (multipart/form-data)
+53. File Upload (Document PDF): POST /api/v1/documents (binary stream)
+54. Search (Autocomplete API): GET /api/v1/search/suggest?q=secur
+55. Search (Filter by Category): GET /products?category=electronics&brand=apple
+56. Search (Sort by Price): GET /products?sort=price_desc&page=1
+57. API POST (Create Comment): POST /api/v1/posts/55/comments {"text": "Great article!"}
+58. API PUT (Update Avatar): PUT /api/v1/user/settings {"avatar_url": "https://img.com/u1.png"}
+59. API GET (Paginated Users List): GET /admin/users?limit=20&offset=40
+60. API GET (CSV Export Request): GET /admin/reports/sales.csv?year=2025
+61. Password Change (Current/New Password): POST /user/password-update {"old": "pass1", "new": "pass2"}
+62. Two-Factor Secret Setup: GET /user/mfa/setup-qr
+63. Newsletter Unsubscribe Link: GET /newsletter/unsubscribe?token=abc123def456
+64. Email Verification Link Click: GET /auth/verify-email?code=v987654321
+65. Invite Team Member Submit: POST /team/invite {"email": "colleague@work.com"}
+66. Project Creation (JSON naming): POST /api/v1/projects {"name": "Security Audit 2026"}
+67. Billing Address Update: PUT /billing/address {"street": "123 Main St", "city": "Hanoi"}
+68. Credit Card Tokenization (Stripe/Internal): POST /api/v1/payment/tokens {"card_last4": "4242"}
+69. Order History Search: GET /user/orders?status=shipped&from=2025-01-01
+70. Knowledge Base Search: GET /help/kb/search?query=how+to+reset+password
+71. API POST (Log Frontend Error): POST /logs/client {"error": "Uncaught TypeError", "stack": "..."}
+72. API POST (Metric Tracking): POST /analytics/metric {"event": "button_click", "label": "signup"}
+73. WebSocket Handshake (Normal): GET /ws/notifications (Upgrade: websocket)
+74. WebSocket Heartbeat (Ping): [Binary Frame] 0x89 (Ping)
+75. Resource Loading (SVG Icon): GET /static/icons/heart.svg
+76. Resource Loading (WebP Image): GET /images/hero-banner.webp
+77. Resource Loading (JSON Config): GET /config/app-settings.json
+78. i18n Change (Language Toggle): GET /api/v1/locale/set?lang=en
+79. Dark Mode Theme Toggle: POST /user/ui/theme {"mode": "dark"}
+80. User Notification Dismiss: DELETE /api/v1/notifications/1024
+81. In-App Message Read Receipt: PATCH /api/v1/messages/500 {"read": true}
+82. Video Playback Progress Sync: POST /api/v1/sync/video {"id": "v_123", "position": 450}
+83. Audio Stream Fragment Load: GET /stream/audio/segment_77.aac
+84. Map Zoom/Pan Coordinates: GET /api/v1/map/data?lat=21.0285&lng=105.8542&zoom=15
+85. Dashboard Widget Refresh: GET /api/v1/dashboard/widgets/sales-chart/data
+86. Report Generation (Polling status): GET /api/v1/tasks/rep_99/status
+87. Terms of Service Acceptance: POST /legal/tos/accept {"version": "2.1.0"}
+88. GDPR Consent Modal Submit: POST /privacy/consent {"analytics": true, "marketing": false}
+89. Site Search (Complex query with AND, OR): GET /search?q=machine+learning+NOT+python
+90. Product Review Submit (Text + Star rating): POST /reviews {"id": "p_50", "stars": 5, "comment": "Amazing quality!"}
+91. Wishlist Add Request: POST /wishlist/add {"item_id": "it_888"}
+92. Compare Products Modal Access: GET /products/compare?base=p1&target=p2
+93. Store Locator Search (Zip codes): GET /stores/find?zip=10001&distance=10
+94. Career Page (Job application submit): POST /careers/apply {"job_id": "eng_01", "name": "John Doe"}
+95. Support Ticket Attachments: GET /api/v1/support/tickets/404/attachments
+96. Live Chat Initiation: POST /chat/init {"user_id": "u_55", "topic": "billing"}
+97. RSS Feed Access: GET /feed/news.rss
+98. Podcast RSS Metadata: GET /podcasts/latest.xml
+99. E-book Kindle Delivery Request: POST /api/v1/deliver/kindle {"book_id": "b_772"}
+100. Logout Confirmation Access: GET /auth/logout/confirm
+101. Test: GET /homess
+102. Test2: GET /id?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIzNTEwMzcsImlhdCI6MTc3MjA5MTgzNywidXNlciI6eyJzZXNzaW9uX2lkIjoiMDE5Yzk4ZTctOGFjMi03Mjc0LWFkM2EtMmRiNzFhZTYzZThlIiwic291cmNlIjoiQk8iLCJzdGFmZl9jb2RlIjoibGluaGxoMiIsInVzZXJfZW1haWwiOiJsaW5obGgyQHZucGF5LnZuIiwidXNlcl9mdWxsX25hbWUiOiJMaW5oIEzDqiBIw
+103. Test3: GET /?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIxODE2MDMsImlhdCI6MTc3MTkyMjQwMywidXNlciI6eyJncm91cF9pZCI6IjAxOWMwZTZlLWI0YTctNzRjYS05MGNlLTUyY2M0Njg5MzZjZSIsImxlYWRlcl9pZCI6IjAxOWMwOWU0LTNmY2QtNzc2ZS05ZGUwLWFiZGYyZjI3ZTYwMyIsInNlc3Npb25faWQiOiIwMTljOGVjZS0zMTkyLTc4MjQtYTI1OS0zZDZmM2JhM2NkM
+104. Only slash: GET /ducbph {UA: curl}
+105. FP1: /Rnj7kZj.jpeg?q=_I%20would%20like%20to%20see%20the%20runtime%20for%20the%20payload,%20please.
+106. FP2: /Rnj7kZj.jpeg?q=The%20standard%20for%20the%20<$%20tag%20is%20to%20enclose%20text%20or%20code%20that%20should%20b%20e%20interpreted%20as%20a%20dollar%20amount.
+107. FP3: //pvc-6464b4a6-d52b-4047-933a-2053ba4bef52/uploads/2026/02/05/6984113492b5b92036eb94ff.mp4?q=The%20standard%20for%20the%20<$%20tag%20is%20to%20enclose%20text%20or%20code%20that%20should%20b%20e%20interpreted%20as%20a%20dollar%20amount.108. FP_PDF_1: Test set Test case Percentage Blocked Bypassed Unresolved Sent Failed false-pos texts 0.00% 47 0 0 47 0 True Negative Tests 0 true-negative requests identified as bypassed (test passed, good behavior) 47 true-negative requests identified as blocked (test failed, bad behavior) Payload Test case Encoder Placeholder Status )I would like to request information about the address: (#)saddr for the next minute.
+109. FP_PDF_2: ,I would like to request information about the shadow EXFFJT.
+110. FP_PDF_3: 1) a-b=c
+111. FP_PDF_4: =Can I please adjust_campaign:sign?
+112. FP_PDF_5: >url=/pi?mode=<;>
+113. FP_PDF_6: D'or 1st parfume
+114. FP_PDF_7: DEAR FINN,--I think it would do; copy should reach us second post
+115. FP_PDF_8: DELETE 75oBC$
+116. FP_PDF_9: I setted the COOKIE value to : expandGeoJsonFeatures=true;
+117. FP_PDF_10: I would like to be notified when the ASIN: B07JJS7WY7 is back in sto ck.
+118. FP_PDF_11: I would like to keep-alive my connection and have the full_text of t he article, please.
+119. FP_PDF_12: I would like to request a random number between 1 and 10, please.
+120. FP_PDF_13: I would like to request information about the idv_msdb database.
+121. FP_PDF_14: I would like to request the bin with app_id: (]
+122. FP_PDF_15: I would like to request the local version of the website in French, so I will include the parameter "hl=fr"
+123. FP_PDF_16: I would like to search for the string "%t" please.
+124. FP_PDF_17: I would like to see a list of drivers sorted in reverse order.
+125. FP_PDF_18: If the subject parameter is greater than 0, then return a list of al l articles with that subject.
+126. FP_PDF_19: JavaScript: Basics of JavaScript Language
+127. FP_PDF_20: MKCALENDAR cursor:I would like to create a new calendar called "curs or" please.
+128. FP_PDF_21: The Senora found herself a heroine; more than that, she became aware
+129. FP_PDF_22: The parameter 5 is&|.
+130. FP_PDF_23: The standard for the <$ tag is to enclose text or code that should b e interpreted as a dollar amount.
+131. FP_PDF_24: [Host: type: {[
+132. FP_PDF_25: _I would like to see the runtime for the payload, please.
+133. FP_PDF_26: _SELECT all the rows of fromDate = @-_
+134. FP_PDF_27: and &IN=color&=
+135. FP_PDF_28: and =IS=C5HF95_=
+136. FP_PDF_29: and >I would like to see all of the items that are type <enter type here>.
+137. FP_PDF_30: bash away in the gym
+138. FP_PDF_31: curl and divergence
+139. FP_PDF_32: echo in the mirror
+140. FP_PDF_33: exec noun
+141. FP_PDF_34: h2<h1
+142. FP_PDF_35: java lang courses
+143. FP_PDF_36: john+or@var.es
+144. FP_PDF_37: lhttps://www.instagram.com/p/B_uHgI7lY0Z/?igshid=1m7xkk7a9v6z4&utm_s ource=ig_web_copy_linkCan I please get the id for the user that I am trying to follow?
+145. FP_PDF_38: ls 300 lexus
+146. FP_PDF_39: nc 8000 controller
+147. FP_PDF_40: time he came.
+148. FP_PDF_41: union was a great select
+149. FP_PDF_42: url=/?usr=subject;-
+150. FP_PDF_43: url=/maps/api/geocode/json?address=Reader&daddr=!
+151. FP_PDF_44: url=http://www.example.com/tan?usp=4#8
+152. FP_PDF_45: url=https://api.twitter.com/1.1/statuses/user_timeline.json?screen_n ame=twitterapi&count=2&include_rts=1&exclude_replies=1
+153. FP_PDF_46: zsh is the best!
+154. FP_PDF_47: }I would like to request the /cc serviceCode with the parameter: ser viceCode|{}
+155. Fix_Samples_1: POST /api/upload {"filename": "image.png", "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="}
+156. FP_PDF_48: /admin/login?q=_I%20would%20like%20to%20see%20the%20runtime%20for%20the%20payload,%20please.
+157. FP_PDF_49: /api/iaas/portal/ops/volumes?ids=prod_iaas_portal_volume_ops_resourcebd85583cfb1d4442b8ac0cd1fedc9544&ids=prod_iaas_portal_volume_ops_resource257779cf409d4a228fd5cc66ba0ba5f3&ids=prod_iaas_portal_volume_ops_resource9616cd292f0f4e57a2afeba8e8395bf1&ids=prod_iaas_portal_volume_ops_resource762c2b3da1ce44299d6bc955a0fc755d&ids=prod_iaas_portal_volume_ops_resourcefd6b75001cc341498049efa3a4256058&ids=prod_iaas_portal_volume_ops_resource589a8ff097cc4427ade51911c0f491fa&ids=prod_iaas_portal_volume_ops_resourcebe0709aaac474e57a38de2ecd16c5ec2&ids=prod_iaas_portal_volume_ops_resource36996f88d9484f7ca6fd371bd044a369&ids=prod_iaas_portal_volume_ops_resource897b4d9250c64fbaa7ee1d4e2ab4f87e&ids=prod_iaas_portal_volume_ops_resource81958eef18c34ebd99b9ccb1fb8ae1df&page.index=1&page.size=999&page.total=true

@@ -1,0 +1,28 @@
+# Virtual environments
+venv/
+env/
+.env
+
+# Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Models and checkpoints
+saved_model/
+*.safetensors
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+*.ckpt
+
+# Large Datasets
+*.csv
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
