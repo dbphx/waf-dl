@@ -22,6 +22,8 @@ The resulting output is a probability array for these classes, providing greater
 - `dataset.py`: Handles parsing the newly generated `hybrid_dataset.csv` balancing class counts to prevent generic attack dominance. It creates `Dataset` objects via the DistilBert tokenizer.
 - `train.py`: The main PyTorch training loop using the `Trainer` class. Configured for MPS, CUDA, or CPU seamlessly.
 - `predict.py`: A local inference script that allows verifying predictions for custom strings via `--text`.
+- `server.py`: A Flask-based HTTP server that loads the trained model for real-time inference.
+- `attacker.py`: A Python script to simulate adversarial HTTP traffic against the inference server.
 - `test_from_file.py`: A testing script designed to read payloads line-by-line from `data/attack.txt` or `data/normal.txt` to calculate sample-set accuracy.
 - `export.py`: The bridge to the Go runtime. It converts the saved PyTorch model to `ONNX` format, saving it to `/models/deep_learning/distilbert_waf.onnx`.
 
@@ -32,7 +34,7 @@ Navigate to `src/deep_learning` and create a virtual environment, then install d
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install pandas scikit-learn transformers datasets torch onnx onnxscript accelerate
+pip install pandas scikit-learn transformers datasets torch onnx onnxscript accelerate flask requests
 ```
 
 ## Running the Pipeline
@@ -43,15 +45,24 @@ By default, the script trains over a limited balance of datasets using max sampl
 python train.py --samples 50000 --epochs 3 --batch-size 32
 ```
 
-**2. Test predictions manually**:
+**2. Real-time Inference Server**:
+Start the Flask server to receive HTTP requests for classification.
 ```bash
-python predict.py --text "GET /index.php" "GET /login?user=admin' OR '1'='1"
+python server.py
 ```
 
-**3. Test against raw text datasets**:
+**3. Attack Simulation**:
+Test the server's detection capabilities using the provided simulation scripts (available in Python and Go).
+
+**Python Attacker**:
 ```bash
-python test_from_file.py --file ../../data/normal.txt
-python test_from_file.py --file ../../data/attack.txt
+python attacker.py
+```
+
+**Go Attacker**:
+```bash
+cd ../../application/go
+go run attacker.go
 ```
 
 **4. Export to ONNX for Go inference**:
@@ -59,13 +70,20 @@ python test_from_file.py --file ../../data/attack.txt
 python export.py
 ```
 
-**5. Running the Go Prototype**:
-The resulting ONNX model (`distilbert_waf.onnx`) is designed to be loaded by the `github.com/yalue/onnxruntime_go` library. 
-Ensure you have the `libonnxruntime` dynamic libraries downloaded and placed in your system's library path (e.g., `/usr/local/lib/`).
+## Go Integration
 
-You can review or run the example boilerplate implementation in `application/go`:
+The resulting ONNX model (`distilbert_waf.onnx`) can be loaded by Go applications for high-performance production inference.
 
+### 1. Running the Go Server
+The prototype in `application/go` has been updated to act as an HTTP endpoint.
 ```bash
-cd ../../application/go
+cd application/go
 go run main.go
+```
+
+### 2. Testing with Go Attacker
+Run the Go-based attacker to verify the model's performance against various encodings (URL, Hex, Base64).
+```bash
+cd application/go
+go run attacker.go
 ```
