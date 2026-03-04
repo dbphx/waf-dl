@@ -18,7 +18,7 @@ device = None
 def load_model():
     global model, tokenizer, device
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, '../../models/deep_learning')
+    model_path = os.path.join(script_dir, '../../models/distilbert')
     
     print(f"Loading WAF model from {model_path}...")
     try:

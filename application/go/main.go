@@ -17,8 +17,8 @@ type WafResponse struct {
 
 func main() {
 	predictor, err := utils.NewPredictor(
-		"models/distilbert_waf.onnx",
-		"models/tokenizer/tokenizer.json",
+		"models/distilbert/distilbert_waf.onnx",
+		"models/distilbert/tokenizer/tokenizer.json",
 	)
 	if err != nil {
 		log.Fatalf("Failed to initialize predictor: %v", err)

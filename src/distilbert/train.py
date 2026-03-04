@@ -100,8 +100,8 @@ def train(output_dir, max_samples=5000, epochs=3, batch_size=16):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_output = os.path.join(script_dir, '../../models/deep_learning')
-
+    default_output = os.path.join(script_dir, '../../models/distilbert')
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', default=default_output, help='Output directory for the model')
     parser.add_argument('--samples', type=int, default=5000, help='Max samples per class')

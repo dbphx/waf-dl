@@ -54,7 +54,7 @@ def predict(model_path, inputs):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_model = os.path.join(script_dir, '../../models/deep_learning')
+    default_model = os.path.join(script_dir, '../../models/distilbert')
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default=default_model, help='Path to trained model')

@@ -11,10 +11,10 @@ import os
 # Configuration
 MAX_LEN = 128
 EMBED_DIM = 64
-HIDDEN_DIM = 128
-BATCH_SIZE = 32
-EPOCHS = 5
-LR = 0.001
+HIDDEN_DIM = 64
+BATCH_SIZE = 16
+EPOCHS = 30
+LR = 0.005
 
 # Define Target Classes (Same as old model)
 TARGET_CLASSES = ['normal', 'sqli', 'xss', 'lfi', 'rce', 'other', 'upload', 'traversal']
@@ -54,16 +54,16 @@ class BiLSTMClassifier(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_dim, num_classes):
         super(BiLSTMClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
-        self.lstm = nn.LSTM(embed_dim, hidden_dim, num_layers=2, batch_first=True, bidirectional=True, dropout=0.2)
+        self.lstm = nn.LSTM(embed_dim, hidden_dim, num_layers=1, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(hidden_dim * 2, num_classes)
-        self.dropout = nn.Dropout(0.3)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
         embedded = self.embedding(x)
-        # lstm output: (batch, seq_len, hidden_dim * 2)
         lstm_out, _ = self.lstm(embedded)
-        # Use the last hidden state for classification
-        out = self.fc(self.dropout(lstm_out[:, -1, :]))
+        # Global max pooling over the sequence dimension
+        out, _ = torch.max(lstm_out, dim=1)
+        out = self.fc(self.dropout(out))
         return out
 
 def train():
@@ -71,7 +71,7 @@ def train():
     print(f"Training on device: {device}")
 
     # Load data
-    data_path = '../data/hybrid_dataset.csv'
+    data_path = '../../data/hybrid_dataset.csv'
     if not os.path.exists(data_path):
         print(f"Error: {data_path} not found. Run txt_to_df.py first.")
         return
@@ -103,7 +103,8 @@ def train():
             optimizer.step()
             total_loss += loss.item()
         
-        print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {total_loss/len(train_loader):.4f}")
+        if (epoch + 1) % 5 == 0:
+            print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {total_loss/len(train_loader):.4f}")
 
     # Evaluation
     model.eval()
@@ -121,12 +122,12 @@ def train():
     present_names = [TARGET_CLASSES[i] for i in present_labels]
 
     print("\n--- Bi-LSTM Classification Report ---")
-    print(classification_report(all_labels, all_preds, labels=present_labels, target_names=present_names))
+    print(classification_report(all_labels, all_preds, labels=present_labels, target_names=present_names, zero_division=0))
     
     # Save model
-    os.makedirs("../../models/lstm", exist_ok=True)
-    torch.save(model.state_dict(), "../../models/lstm/waf_bilstm.pth")
-    print("Model saved to models/lstm/waf_bilstm.pth")
+    os.makedirs("../../models/bilstm", exist_ok=True)
+    torch.save(model.state_dict(), "../../models/bilstm/waf_bilstm.pth")
+    print("Model saved to models/bilstm/waf_bilstm.pth")
 
 if __name__ == "__main__":
     train()

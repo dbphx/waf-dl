@@ -50,8 +50,8 @@ def export_to_onnx(model_path, output_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../models/deep_learning', help='Path to PyTorch model')
-    parser.add_argument('--output', default='../../models/deep_learning/distilbert_waf.onnx', help='Path to output ONNX file')
+    parser.add_argument('--model', default='../../models/distilbert', help='Path to PyTorch model')
+    parser.add_argument('--output', default='../../models/distilbert/distilbert_waf.onnx', help='Path to output ONNX file')
     args = parser.parse_args()
     
     export_to_onnx(args.model, args.output)
