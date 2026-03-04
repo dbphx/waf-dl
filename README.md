@@ -27,6 +27,28 @@ The resulting output is a probability array for these classes, providing greater
 - `test_from_file.py`: A testing script designed to read payloads line-by-line from `data/attack.txt` or `data/normal.txt` to calculate sample-set accuracy.
 - `export.py`: The bridge to the Go runtime. It converts the saved PyTorch model to `ONNX` format, saving it to `/models/deep_learning/distilbert_waf.onnx`.
 
+## Model Comparison (`model_train` folder)
+
+We have introduced a second Deep Learning architecture to compare against the Transformer-based approach.
+
+### 1. Old Model: DistilBERT (Transformers)
+- **Algorithm**: Attention-based Transformer.
+- **Strengths**: Pre-trained on massive text datasets; excellent at understanding complex language context even with small fine-tuning data.
+- **Location**: `src/deep_learning/train.py`
+
+### 2. New Model: Bi-LSTM (Recurrent Neural Network)
+- **Algorithm**: Bidirectional Long Short-Term Memory.
+- **Strengths**: Processes sequences character-by-character; lightweight and efficient for detecting sequential patterns in obfuscated payloads.
+- **Location**: `model_train/train_lstm.py`
+
+### Comparison Summary
+| Feature | DistilBERT | Bi-LSTM |
+|---------|------------|---------|
+| Architecture | Attention / Transformer | Recurrent (LSTM) |
+| Training Speed | Slower (Heavyweight) | Faster (Lightweight) |
+| Cold Start Performance | Excellent (Pre-trained) | Poor (Requires more data) |
+| Model Size | ~260MB | ~5MB |
+
 ## Prerequisites
 
 Navigate to `src/deep_learning` and create a virtual environment, then install dependencies:
