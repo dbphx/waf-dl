@@ -23,7 +23,11 @@ type PredictResponse struct {
 }
 
 func main() {
+	// Target the Python DistilBERT server (default)
 	url := "http://127.0.0.1:10001/predict"
+
+	// Uncomment to target the Go production server
+	// url := "http://127.0.0.1:8080/check"
 
 	testCases := []TestCase{
 		{
@@ -86,6 +90,34 @@ func main() {
 			Name:    "Double URL Encoded XSS",
 			Payload: Payload{"q": "%253Cscript%253Ealert(1)%253C%252Fscript%253E"},
 		},
+		{
+			Name:    "Normal Login",
+			Payload: Payload{"username": "jdoe", "password": "securepassword123"},
+		},
+		{
+			Name:    "SQL Injection Union",
+			Payload: Payload{"id": "1' UNION SELECT 1, version() --"},
+		},
+		{
+			Name:    "SVG XSS",
+			Payload: Payload{"profile_pic": "<svg/onload=alert(1)>"},
+		},
+		{
+			Name:    "Command Injection Pipe",
+			Payload: Payload{"ip": "127.0.0.1 | cat /etc/passwd"},
+		},
+		{
+			Name:    "Windows Path Traversal",
+			Payload: Payload{"doc": "..\\..\\windows\\system32\\drivers\\etc\\hosts"},
+		},
+		{
+			Name:    "NoSQL Injection",
+			Payload: Payload{"user": "admin", "password": "{\"$ne\": null}"},
+		},
+		{
+			Name:    "LDAP Injection",
+			Payload: Payload{"user": "*)(uid=*))(|(uid=*"},
+		},
 	}
 
 	fmt.Println("Simulating attacker traffic against WAF Server from Go...\n")
@@ -94,7 +126,7 @@ func main() {
 
 	for _, tc := range testCases {
 		fmt.Printf("[*] Testing: %s\n", tc.Name)
-		fmt.Printf("    Payload: %v\n", tc.Payload)
+		fmt.Printf("    Payload: %v\n", tc.Payload) // TODO: Better formatting for map
 
 		jsonData, err := json.Marshal(tc.Payload)
 		if err != nil {
@@ -102,14 +134,17 @@ func main() {
 			continue
 		}
 
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData)) // TODO: Check if body is closed
 		if err != nil {
 			fmt.Printf("    [-] Error creating request: %v\n", err)
 			continue
 		}
 		req.Header.Set("Content-Type", "application/json")
 
+		start := time.Now()
 		resp, err := client.Do(req)
+		elapsed := time.Since(start)
+
 		if err != nil {
 			fmt.Printf("    [-] Error sending request: %v\n", err)
 			fmt.Println(strings.Repeat("-", 50))
@@ -130,6 +165,7 @@ func main() {
 		} else {
 			fmt.Printf("    [+] ALLOWED. Status: %s (%s)\n", strings.ToUpper(result.Status), result.Type)
 		}
+		fmt.Printf("    [i] Time taken: %v\n", elapsed)
 
 		fmt.Println(strings.Repeat("-", 50))
 		time.Sleep(500 * time.Millisecond)

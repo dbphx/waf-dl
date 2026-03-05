@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import os
+import time
 
 class CharTokenizer:
     def __init__(self, max_len=128):
@@ -37,7 +38,9 @@ TARGET_CLASSES = ['normal', 'sqli', 'xss', 'lfi', 'rce', 'other', 'upload', 'tra
 def run_test():
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
     
-    model_path = "../../models/bilstm/waf_bilstm.pth"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, "../../models/bilstm/waf_bilstm.pth")
+    
     if not os.path.exists(model_path):
         print(f"Error: Model not found at {model_path}. Please run train_lstm.py first.")
         return
@@ -54,21 +57,34 @@ def run_test():
         "admin' OR '1'='1",
         "<script>alert(1)</script>",
         "../../../../etc/passwd",
-        "eval(base64_decode('...'))"
+        "eval(base64_decode('...'))",
+        "%253Cscript%253Ealert(1)%253C%252Fscript%253E",
+        "1' UNION SELECT 1, version() --",
+        "<svg/onload=alert(1)>",
+        "127.0.0.1 | cat /etc/passwd",
+        "..\\..\\windows\\system32\\drivers\\etc\\hosts",
+        "{\"$ne\": null}",
+        "*)(uid=*))(|(uid=*"
     ]
 
     print(f"Testing Bi-LSTM Model ({model_path})...\n")
-    print(f"{'Payload':<30} | {'Prediction':<10} | {'Confidence'}")
-    print("-" * 60)
+    print(f"{'Payload':<30} | {'Prediction':<10} | {'Confidence'} | {'Time (s)'}")
+    print("-" * 80)
 
     with torch.no_grad():
         for payload in test_payloads:
+            start_time = time.time()
             input_tensor = tokenizer.encode(payload).to(device)
             output = model(input_tensor)
             probs = torch.softmax(output, dim=1)
             conf, predicted = torch.max(probs, 1)
             pred_label = TARGET_CLASSES[predicted.item()]
-            print(f"{payload:<30} | {pred_label.upper():<10} | {conf.item():.4f}")
+            elapsed_time = time.time() - start_time
+            
+            # Truncate payload for display
+            display_payload = (payload[:27] + '..') if len(payload) > 27 else payload
+            
+            print(f"{display_payload:<30} | {pred_label.upper():<10} | {conf.item():.4f}     | {elapsed_time:.6f}")
 
 if __name__ == "__main__":
     run_test()

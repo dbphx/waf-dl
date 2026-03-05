@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+transformers
+datasets
+torch
+onnx
+onnxscript
+accelerate
+flask
+requests

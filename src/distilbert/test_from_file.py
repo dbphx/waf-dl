@@ -5,6 +5,7 @@ import argparse
 import sys
 import logging
 import os
+import time
 from dataset import TARGET_CLASSES
 
 logging.basicConfig(level=logging.INFO)
@@ -52,11 +53,14 @@ def predict_from_file(model_path, file_path):
         # Avoid passing to device if tensors are empty or incorrectly formed.
         encoding = {k: v.to(device) for k, v in encoding.items()}
         
+        start_time = time.time()
         with torch.no_grad():
             outputs = model(**encoding)
             
         logits = outputs.logits
         prediction = torch.argmax(logits, dim=-1).item()
+        elapsed_time = time.time() - start_time
+        
         predicted_class = TARGET_CLASSES[prediction]
         
         is_attack_pred = predicted_class != 'normal'
@@ -72,7 +76,7 @@ def predict_from_file(model_path, file_path):
         total += 1
         
         status = 'PASS' if (expected_label == 'normal' and not is_attack_pred) or (expected_label == 'attack' and is_attack_pred) else 'FAIL'
-        print(f"[{status}] Payload: {text[:50]:<50} -> Pred: {predicted_class.upper()}")
+        print(f"[{status}] Payload: {text[:50]:<50} -> Pred: {predicted_class.upper()} | Time: {elapsed_time:.6f}s")
 
     if total > 0:
         logger.info(f"Accuracy on {file_path}: {correct}/{total} ({(correct/total)*100:.2f}%)")

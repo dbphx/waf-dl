@@ -1,83 +1,94 @@
 # WAF Deep Learning Engine
 
-This directory contains the Python-based Deep Learning infrastructure for the WAF, utilizing PyTorch and Hugging Face to train multiple detection models.
+This project implements a Deep Learning-based Web Application Firewall (WAF) engine capable of detecting malicious HTTP payloads using advanced NLP models.
 
 ## Project Structure
 
-- `src/distilbert/`: Transformer-based model (Old Model).
-- `src/bilstm/`: Bi-LSTM character-level model (New Model).
+- `test/`: Inference server and attack simulation scripts.
+  - `server.py`: Flask-based inference server using DistilBERT.
+  - `attacker.py`: Python script to simulate attacks against the server.
+- `src/distilbert/`: Transformer-based model training scripts (DistilBERT).
+- `src/bilstm/`: Bi-LSTM character-level model scripts (Lightweight alternative).
 - `models/`: Trained model weights and exported ONNX files.
-- `application/go/`: Go-based production inference engine.
-- `data/`: Raw text datasets and generated CSVs.
+- `application/go/`: High-performance Go-based inference engine.
+- `data/`: Raw text datasets and CSV files.
+- `requirements.txt`: Python dependencies.
 
-## Model Comparison
+## Models
 
-We have introduced a second Deep Learning architecture to compare against the Transformer-based approach.
+### 1. DistilBERT (Transformer)
+- **Architecture**: Attention-based Transformer.
+- **Strengths**: Understanding complex semantic context.
+- **Location**: `src/distilbert/`
 
-### 1. Model: DistilBERT (Transformers)
-- **Algorithm**: Attention-based Transformer.
-- **Strengths**: Pre-trained on massive text; excellent at understanding complex context.
-- **Location**: `src/distilbert/train.py`
-
-### 2. Model: Bi-LSTM (Recurrent Neural Network)
-- **Algorithm**: Bidirectional Long Short-Term Memory.
-- **Strengths**: Processes sequences character-by-character; tiny footprint and very fast.
-- **Location**: `src/bilstm/train_lstm.py`
-
-### Comparison Summary
-| Feature | DistilBERT | Bi-LSTM |
-|---------|------------|---------|
-| Architecture | Attention / Transformer | Recurrent (LSTM) |
-| Training Speed | Slower (Heavyweight) | Faster (Lightweight) |
-| Model Size | ~260MB | ~5MB |
-| Best For | Natural language context | Obfuscated pattern matching |
+### 2. Bi-LSTM (RNN)
+- **Architecture**: Bidirectional Long Short-Term Memory.
+- **Strengths**: Character-level pattern matching, extremely lightweight (~5MB).
+- **Location**: `src/bilstm/`
 
 ## Prerequisites
 
-Navigate to either model directory in `src/` and create a virtual environment, then install dependencies:
+1.  **Python Environment**:
+    Create a virtual environment at the project root and install dependencies:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install pandas scikit-learn transformers datasets torch onnx onnxscript accelerate flask requests
-```
+2.  **Go Environment** (for Go application):
+    Ensure Go is installed (version 1.21+ recommended).
 
 ## Running the Pipeline
 
-**1. DistilBERT Inference Server**:
+### 1. Start the Inference Server (Python)
+This starts the Flask API serving the DistilBERT model.
 ```bash
-cd src/distilbert
-python server.py
+# Activate venv first
+source venv/bin/activate
+python test/server.py
+```
+*Server runs on `http://127.0.0.1:10001`*
+
+### 2. Simulate Attacks (Python)
+Run the attack simulation script to test the server against various payloads (SQLi, XSS, RCE, etc.).
+```bash
+python test/attacker.py
 ```
 
-**2. Bi-LSTM Inference Test**:
+### 3. Run Bi-LSTM Prediction
+To test the lightweight Bi-LSTM model:
 ```bash
-cd src/bilstm
-python predict_lstm.py
+python src/bilstm/predict_lstm.py
 ```
 
-**3. Attack Simulation**:
-Test the server's detection capabilities using the provided simulation scripts.
+### 4. Go Integration (Production)
+The Go application loads the exported ONNX model for high-performance inference.
 
-**Go Attacker**:
+**Run the Go Attacker** (Simulates traffic against the Python server by default):
 ```bash
 cd application/go
 go run attacker.go
 ```
 
-**4. Export to ONNX for Go inference**:
-```bash
-cd src/distilbert
-python export.py
-```
-
-## Go Integration
-
-The exported ONNX models can be loaded by Go applications for high-performance production inference.
-
-### Running the Go Server
-The prototype in `application/go` acts as an HTTP endpoint.
+**Run the Go WAF Server** (Standalone):
 ```bash
 cd application/go
 go run main.go
+```
+
+## Training
+
+To retrain the models:
+
+**DistilBERT:**
+```bash
+cd src/distilbert
+python train.py
+```
+
+**Bi-LSTM:**
+```bash
+cd src/bilstm
+python train_lstm.py
 ```

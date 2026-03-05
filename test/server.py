@@ -5,8 +5,11 @@ from flask import Flask, request, jsonify
 import os
 import sys
 
+# Add src to system path to import modules from src/
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 # Assume the dataset.py is in the same directory for TARGET_CLASSES
-from dataset import TARGET_CLASSES
+from distilbert.dataset import TARGET_CLASSES
 
 app = Flask(__name__)
 
@@ -18,7 +21,7 @@ device = None
 def load_model():
     global model, tokenizer, device
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, '../../models/distilbert')
+    model_path = os.path.join(script_dir, '../models/distilbert')
     
     print(f"Loading WAF model from {model_path}...")
     try:

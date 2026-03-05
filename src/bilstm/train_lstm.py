@@ -70,8 +70,9 @@ def train():
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"Training on device: {device}")
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     # Load data
-    data_path = '../../data/hybrid_dataset.csv'
+    data_path = os.path.join(script_dir, '../../data/hybrid_dataset.csv')
     if not os.path.exists(data_path):
         print(f"Error: {data_path} not found. Run txt_to_df.py first.")
         return
@@ -125,9 +126,11 @@ def train():
     print(classification_report(all_labels, all_preds, labels=present_labels, target_names=present_names, zero_division=0))
     
     # Save model
-    os.makedirs("../../models/bilstm", exist_ok=True)
-    torch.save(model.state_dict(), "../../models/bilstm/waf_bilstm.pth")
-    print("Model saved to models/bilstm/waf_bilstm.pth")
+    model_dir = os.path.join(script_dir, "../../models/bilstm")
+    os.makedirs(model_dir, exist_ok=True)
+    model_save_path = os.path.join(model_dir, "waf_bilstm.pth")
+    torch.save(model.state_dict(), model_save_path)
+    print(f"Model saved to {model_save_path}")
 
 if __name__ == "__main__":
     train()
